@@ -287,11 +287,6 @@ async function startCamera() {
         stopButton.disabled = false;
         errorMsg.style.display = 'none';
 
-        // Auto-stop after 50 seconds
-        setTimeout(() => {
-            stopCamera();
-        }, 50000);
-
     } catch (err) {
         console.error('Camera error:', err);
         let errorMessage = 'Camera access denied. Please check your settings.';
@@ -314,6 +309,7 @@ async function startCamera() {
         }, 3000);
     }
 }
+
 
 function stopCamera() {
     if (stream) {
