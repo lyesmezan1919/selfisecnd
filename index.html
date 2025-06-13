@@ -144,15 +144,15 @@
     }
 
     .face-oval-visible {
-     opacity: 1;
+      opacity: 1;
       visibility: visible;
     }
 
     .liveness-circle {
       position: absolute;
-      bottom: 20px;
+      bottom: 50%;
       left: 50%;
-      transform: translateX(-50%) scale(1);
+      transform: translate(-50%, 50%) scale(1);
       width: 100px;
       height: 100px;
       border: 5px solid #00c6fb;
@@ -162,14 +162,25 @@
       z-index: 100;
     }
 
+    .liveness-circle::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 4px;
+      background: #ffffff;
+    }
+
     @keyframes pulseCircle {
       0%, 100% {
-        transform: translateX(-50%) scale(1);
+        transform: translate(-50%, 50%) scale(1);
         box-shadow: 0 0 20px #00c6fb;
         border-color: #00c6fb;
       }
       50% {
-        transform: translateX(-50%) scale(1.5);
+        transform: translate(-50%, 50%) scale(1.5);
         box-shadow: 0 0 40px #00c6fb;
         border-color: #fff;
       }
@@ -203,7 +214,7 @@
       <button id="stopButton" disabled>Stop</button>
     </div>
     <div id="errorMsg"></div>
-    <div class="version-label">v1.1.0</div>
+    <div class="version-label">v1.0.0</div>
   </div>
 
   <script>
@@ -239,5 +250,3 @@
   </script>
 </body>
 </html>
-
-
