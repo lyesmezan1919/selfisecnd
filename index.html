@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>Mobile Camera Recorder</title>
+  <title>Mobile Camera</title>
   <style>
     * {
       margin: 0;
@@ -87,7 +87,7 @@
       font-weight: 500;
       cursor: pointer;
       transition: all 0.3s ease;
-      color: white;
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -118,7 +118,7 @@
       padding: 12px 20px;
       border-radius: 8px;
       display: none;
-      color: white;
+      color: #fff;
       font-size: 14px;
       max-width: 90%;
       text-align: center;
@@ -144,7 +144,7 @@
     }
 
     .face-oval-visible {
-      opacity: 1;
+     opacity: 1;
       visibility: visible;
     }
 
@@ -203,14 +203,41 @@
       <button id="stopButton" disabled>Stop</button>
     </div>
     <div id="errorMsg"></div>
-    <div class="version-label">v1.1.1</div>
+    <div class="version-label">v1.1.0</div>
   </div>
 
   <script>
-    // (نفس الكود مثل الي كان عندك)...
-    // لم يتم التعديل على JS
-    // فقط تم إضافة liveness circle ضمن الواجهة
+    const video = document.getElementById('videoElement');
+    const startBtn = document.getElementById('startButton');
+    const stopBtn = document.getElementById('stopButton');
+    let stream = null;
+
+    startBtn.onclick = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video.srcObject = stream;
+
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+      } catch (err) {
+        console.error(err);
+        document.getElementById('errorMsg').innerHTML = 'حدث خطأ في الكاميرا';
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    }
+
+    stopBtn.onclick = () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop()); // إيقاف الكاميرا
+        video.srcObject = null;
+        stream = null;
+
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+      }
+    }
   </script>
 </body>
 </html>
+
 
