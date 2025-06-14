@@ -29,14 +29,14 @@
       max-width: 400px;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgb(0 0 0 / 0.5);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
       position: relative;
     }
 
     .video-container {
       position: relative;
       width: 100%;
-      padding-top: 200%;
+      padding-top: 200%; /* Aspect ratio */
       background: #000;
     }
 
@@ -61,6 +61,7 @@
       pointer-events: none;
     }
 
+    /* New face detection overlay styles */
     .face-detection-overlay {
       position: absolute;
       top: 0;
@@ -70,23 +71,23 @@
       z-index: 1;
     }
 
-    .face-oval {
-      border: 3px solid #00e676;
-      border-radius: 60% 40% 40% 60%;
-      width: 70%;
-      height: 50%;
-      position: absolute;
-      top: 50%;
-      left: 45%;
-      transform: translate(-50%, -50%);
-      z-index: 2;
-      animation: pulse 2s infinite;
-    }
+.face-oval {
+  border: 3px solid #00e676;
+  border-radius: 50%;
+  width: 70%;
+  height: 50%;
+  position: absolute;
+  top: 45%;
+  left: 45%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  animation: pulse 2s infinite;
+}
 
     @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgb(0, 230, 118, 0.4); }
-      70% { box-shadow: 0 0 0 15px rgb(0, 230, 118, 0); }
-      100% { box-shadow: 0 0 0 0 rgb(0, 230, 118, 0); }
+      0% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(0, 230, 118, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
     }
 
     .success-message {
@@ -129,7 +130,7 @@
       transition: all 0.3s ease;
       color: white;
       background: linear-gradient(45deg, #00c6fb, #005bea);
-      box-shadow: 0 4px 15px rgb(0 198 251 / 0.3);
+      box-shadow: 0 4px 15px rgba(0, 198, 251, 0.3);
     }
 
     button:disabled {
@@ -146,7 +147,7 @@
       color: white;
       font-size: 16px;
       z-index: 3;
-      background: rgb(0 0 0 / 0.5);
+      background: rgba(0, 0, 0, 0.5);
       padding: 8px;
     }
   </style>
@@ -161,7 +162,7 @@
         <div class="face-oval"></div>
       </div>
       
-      <div class="overlay" id="successOverlay" style="display: none">
+      <div class="overlay" id="successOverlay" style="display: none;">
         <div class="success-message">
           <svg class="checkmark" viewBox="0 0 52 52">
             <path d="M14 27 L22 35 L38 19" />
@@ -217,7 +218,7 @@
 
     function stopCamera() {
       if (stream) {
-        stream.getTracks().forEach(track => track.stop()); // Stop camera
+        stream.getTracks().forEach(track => track.stop());
         videoElement.srcObject = null;
         stream = null;
       }
