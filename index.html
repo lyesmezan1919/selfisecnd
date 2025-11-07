@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Mobile Camera - Face Detection Overlay</title>
+  <title>تحريك دائرة الوجه</title>
   <style>
     * {
       margin: 0;
@@ -36,7 +36,7 @@
     .video-container {
       position: relative;
       width: 100%;
-      padding-top: 200%; /* Aspect ratio */
+      padding-top: 200%;
       background: #000;
     }
 
@@ -49,19 +49,6 @@
       transform: scaleX(-1);
     }
 
-    .overlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      pointer-events: none;
-    }
-
-    /* New face detection overlay styles */
     .face-detection-overlay {
       position: absolute;
       top: 0;
@@ -78,8 +65,11 @@
       height: 50%;
       position: absolute;
       transform: translate(-50%, -50%);
+      top: 50%;
+      left: 50%;
       z-index: 2;
       animation: pulse 2s infinite;
+      transition: all 1s ease; /* حركة سلسة */
     }
 
     @keyframes pulse {
@@ -156,12 +146,7 @@
       <video id="videoElement" autoplay playsinline></video>
       
       <div class="face-detection-overlay">
-        <!-- Multiple face-oval elements positioned at different locations -->
-        <div class="face-oval" style="top: 25%; left: 30%;"></div>
-        <div class="face-oval" style="top: 50%; left: 50%;"></div>
-        <div class="face-oval" style="top: 75%; left: 70%;"></div>
-        <div class="face-oval" style="top: 40%; left: 80%;"></div>
-        <div class="face-oval" style="top: 60%; left: 20%;"></div>
+        <div class="face-oval" id="faceOval"></div>
       </div>
       
       <div class="overlay" id="successOverlay" style="display: none;">
@@ -173,12 +158,12 @@
         </div>
       </div>
       
-      <div class="hint-text" id="hintText">The face must be in the center</div>
+      <div class="hint-text" id="hintText">الوجه يجب أن يكون في المنتصف</div>
     </div>
 
     <div class="button-container">
-      <button id="startButton">Start</button>
-      <button id="stopButton" disabled>Stop</button>
+      <button id="startButton">ابدأ</button>
+      <button id="stopButton" disabled>إيقاف</button>
     </div>
   </div>
 
@@ -186,9 +171,18 @@
     const videoElement = document.getElementById('videoElement');
     const startButton = document.getElementById('startButton');
     const stopButton = document.getElementById('stopButton');
-    const successOverlay = document.getElementById('successOverlay');
-    const hintText = document.getElementById('hintText');
+    const faceOval = document.getElementById('faceOval');
     let stream = null;
+    let moveInterval = null;
+
+    const positions = [
+      { top: '50%', left: '50%' }, // منتصف
+      { top: '50%', left: '55%' }, // يمين بسيط
+      { top: '50%', left: '45%' }, // يسار بسيط
+      { top: '45%', left: '50%' }, // أعلى بسيط
+      { top: '55%', left: '50%' }  // أسفل بسيط
+    ];
+    let currentPosition = 0;
 
     async function startCamera() {
       try {
@@ -205,17 +199,24 @@
         startButton.disabled = true;
         stopButton.disabled = false;
 
-        // Simulate success after 3 seconds
-        setTimeout(() => {
-          successOverlay.style.display = 'flex';
-          hintText.style.display = 'none';
-        }, 3000);
+        startMovingOval(); // ابدأ تحريك الدائرة
 
       } catch (err) {
-        alert('Camera error: ' + err.message);
+        alert('خطأ في الكاميرا: ' + err.message);
         startButton.disabled = false;
         stopButton.disabled = true;
       }
+    }
+
+    function startMovingOval() {
+      let timer = 0;
+      moveInterval = setInterval(() => {
+        const pos = positions[currentPosition];
+        faceOval.style.top = pos.top;
+        faceOval.style.left = pos.left;
+        console.log(`🔵 الموضع ${currentPosition + 1} - مدة: 5 ثوان`);
+        currentPosition = (currentPosition + 1) % positions.length;
+      }, 5000); // كل 5 ثوانٍ
     }
 
     function stopCamera() {
@@ -224,8 +225,8 @@
         videoElement.srcObject = null;
         stream = null;
       }
-      successOverlay.style.display = 'none';
-      hintText.style.display = 'block';
+      clearInterval(moveInterval);
+      moveInterval = null;
       startButton.disabled = false;
       stopButton.disabled = true;
     }
@@ -235,4 +236,5 @@
   </script>
 </body>
 </html>
+
 
