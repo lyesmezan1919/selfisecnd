@@ -71,18 +71,16 @@
       z-index: 1;
     }
 
-.face-oval {
-  border: 3px solid #00e676;
-  border-radius: 50%;
-  width: 70%;
-  height: 50%;
-  position: absolute;
-  top: 45%;
-  left: 45%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  animation: pulse 2s infinite;
-}
+    .face-oval {
+      border: 3px solid #00e676;
+      border-radius: 50%;
+      width: 70%;
+      height: 50%;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      animation: pulse 2s infinite;
+    }
 
     @keyframes pulse {
       0% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4); }
@@ -158,8 +156,12 @@
       <video id="videoElement" autoplay playsinline></video>
       
       <div class="face-detection-overlay">
-        <div class="mask-overlay"></div>
-        <div class="face-oval"></div>
+        <!-- Multiple face-oval elements positioned at different locations -->
+        <div class="face-oval" style="top: 25%; left: 30%;"></div>
+        <div class="face-oval" style="top: 50%; left: 50%;"></div>
+        <div class="face-oval" style="top: 75%; left: 70%;"></div>
+        <div class="face-oval" style="top: 40%; left: 80%;"></div>
+        <div class="face-oval" style="top: 60%; left: 20%;"></div>
       </div>
       
       <div class="overlay" id="successOverlay" style="display: none;">
@@ -233,3 +235,4 @@
   </script>
 </body>
 </html>
+
