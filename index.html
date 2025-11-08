@@ -3,14 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>تحريك دائرة الوجه</title>
+  <title>تحريك دائرة الوجه مع تركيز تلقائي</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
       min-height: 100vh;
@@ -69,32 +64,13 @@
       left: 50%;
       z-index: 2;
       animation: pulse 2s infinite;
-      transition: all 1s ease; /* حركة سلسة */
+      transition: all 1s ease;
     }
 
     @keyframes pulse {
       0% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.4); }
       70% { box-shadow: 0 0 0 15px rgba(0, 230, 118, 0); }
       100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
-    }
-
-    .success-message {
-      color: white;
-      font-size: 24px;
-      font-weight: bold;
-      margin-top: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      z-index: 3;
-    }
-
-    .checkmark {
-      width: 32px;
-      height: 32px;
-      stroke: #00e676;
-      stroke-width: 4;
-      fill: none;
     }
 
     .button-container {
@@ -121,10 +97,7 @@
       box-shadow: 0 4px 15px rgba(0, 198, 251, 0.3);
     }
 
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .hint-text {
       position: absolute;
@@ -148,16 +121,7 @@
       <div class="face-detection-overlay">
         <div class="face-oval" id="faceOval"></div>
       </div>
-      
-      <div class="overlay" id="successOverlay" style="display: none;">
-        <div class="success-message">
-          <svg class="checkmark" viewBox="0 0 52 52">
-            <path d="M14 27 L22 35 L38 19" />
-          </svg>
-          Success
-        </div>
-      </div>
-      
+
       <div class="hint-text" id="hintText">الوجه يجب أن يكون في المنتصف</div>
     </div>
 
@@ -176,11 +140,11 @@
     let moveInterval = null;
 
     const positions = [
-      { top: '50%', left: '50%' }, // منتصف
-      { top: '50%', left: '55%' }, // يمين بسيط
-      { top: '50%', left: '45%' }, // يسار بسيط
-      { top: '45%', left: '50%' }, // أعلى بسيط
-      { top: '55%', left: '50%' }  // أسفل بسيط
+      { top: '50%', left: '50%' },
+      { top: '50%', left: '55%' },
+      { top: '50%', left: '45%' },
+      { top: '45%', left: '50%' },
+      { top: '55%', left: '50%' }
     ];
     let currentPosition = 0;
 
@@ -188,8 +152,18 @@
       try {
         if (stream) stopCamera();
 
+        // طلب الكاميرا مع تفعيل التركيز التلقائي إن كان مدعومًا
         const constraints = {
-          video: { facingMode: 'user' },
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            advanced: [
+              { focusMode: "continuous" }, // التركيز التلقائي المستمر
+              { exposureMode: "continuous" },
+              { whiteBalanceMode: "continuous" }
+            ]
+          },
           audio: false
         };
 
@@ -199,7 +173,17 @@
         startButton.disabled = true;
         stopButton.disabled = false;
 
-        startMovingOval(); // ابدأ تحريك الدائرة
+        // محاولة تفعيل التركيز التلقائي يدويًا إن أمكن
+        const [track] = stream.getVideoTracks();
+        const capabilities = track.getCapabilities();
+        if (capabilities.focusMode) {
+          await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
+          console.log("✅ التركيز التلقائي (Auto Focus) مفعل");
+        } else {
+          console.warn("⚠️ هذا الجهاز لا يدعم التحكم بالتركيز التلقائي عبر JavaScript");
+        }
+
+        startMovingOval();
 
       } catch (err) {
         alert('خطأ في الكاميرا: ' + err.message);
@@ -209,14 +193,13 @@
     }
 
     function startMovingOval() {
-      let timer = 0;
       moveInterval = setInterval(() => {
         const pos = positions[currentPosition];
         faceOval.style.top = pos.top;
         faceOval.style.left = pos.left;
         console.log(`🔵 الموضع ${currentPosition + 1} - مدة: 5 ثوان`);
         currentPosition = (currentPosition + 1) % positions.length;
-      }, 5000); // كل 5 ثوانٍ
+      }, 5000);
     }
 
     function stopCamera() {
@@ -236,5 +219,3 @@
   </script>
 </body>
 </html>
-
-
