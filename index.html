@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>تحريك دائرة الوجه مع تركيز تلقائي</title>
+  <title>تحريك دائرة الوجه مع تركيز تلقائي متجدد</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -138,6 +138,7 @@
     const faceOval = document.getElementById('faceOval');
     let stream = null;
     let moveInterval = null;
+    let track = null; // مسار الكاميرا للتحكم بالتركيز
 
     const positions = [
       { top: '50%', left: '50%' },
@@ -152,14 +153,14 @@
       try {
         if (stream) stopCamera();
 
-        // طلب الكاميرا مع تفعيل التركيز التلقائي إن كان مدعومًا
+        // طلب الكاميرا مع التركيز التلقائي إن أمكن
         const constraints = {
           video: {
             facingMode: 'user',
             width: { ideal: 1280 },
             height: { ideal: 720 },
             advanced: [
-              { focusMode: "continuous" }, // التركيز التلقائي المستمر
+              { focusMode: "continuous" },
               { exposureMode: "continuous" },
               { whiteBalanceMode: "continuous" }
             ]
@@ -170,19 +171,16 @@
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         videoElement.srcObject = stream;
 
+        // حفظ المسار للتحكم اليدوي بالتركيز
+        track = stream.getVideoTracks()[0];
+
         startButton.disabled = true;
         stopButton.disabled = false;
 
-        // محاولة تفعيل التركيز التلقائي يدويًا إن أمكن
-        const [track] = stream.getVideoTracks();
-        const capabilities = track.getCapabilities();
-        if (capabilities.focusMode) {
-          await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
-          console.log("✅ التركيز التلقائي (Auto Focus) مفعل");
-        } else {
-          console.warn("⚠️ هذا الجهاز لا يدعم التحكم بالتركيز التلقائي عبر JavaScript");
-        }
+        // تفعيل التركيز الأولي
+        await enableAutoFocus();
 
+        // بدء تحريك الدائرة
         startMovingOval();
 
       } catch (err) {
@@ -192,14 +190,35 @@
       }
     }
 
+    // 🔁 إعادة تفعيل التركيز التلقائي في كل مرة
+    async function enableAutoFocus() {
+      if (!track) return;
+      const capabilities = track.getCapabilities();
+      if (capabilities.focusMode && capabilities.focusMode.includes("continuous")) {
+        try {
+          await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
+          console.log("🎯 تم إعادة تشغيل التركيز التلقائي");
+        } catch (e) {
+          console.warn("⚠️ فشل تفعيل التركيز:", e.message);
+        }
+      } else {
+        console.warn("⚠️ هذا الجهاز لا يدعم التركيز التلقائي.");
+      }
+    }
+
     function startMovingOval() {
-      moveInterval = setInterval(() => {
+      moveInterval = setInterval(async () => {
         const pos = positions[currentPosition];
         faceOval.style.top = pos.top;
         faceOval.style.left = pos.left;
-        console.log(`🔵 الموضع ${currentPosition + 1} - مدة: 5 ثوان`);
+
+        console.log(`🔵 الموضع ${currentPosition + 1} - إعادة ضبط التركيز`);
+
+        // بعد كل حركة نعيد تفعيل التركيز
+        await enableAutoFocus();
+
         currentPosition = (currentPosition + 1) % positions.length;
-      }, 5000);
+      }, 5000); // كل 5 ثوانٍ
     }
 
     function stopCamera() {
